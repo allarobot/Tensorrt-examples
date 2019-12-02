@@ -1,4 +1,5 @@
 numpy
-Pillow
+opencv-python
 pycuda
 tensorflow
+tensorrt
