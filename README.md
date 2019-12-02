@@ -72,7 +72,11 @@ On Windows PC, the installation procedure will updated soon.....
 	Depending on how you installed TensorRT, this utility may also be located in `/usr/lib/python2.7/dist-packages/uff/bin/convert_to_uff.py` or `/usr/lib/python<PYTHON3 VERSION>/site-packages/uff/bin/convert_to_uff.py`.
 
 3.  Create a TensorRT inference engine from the UFF file and run inference:
-	`python my_inference_sample.py`
+	```
+	cd <project directory>
+	python3 my_inference_sample.py
+	
+	```
 
 
 4.  Verify that the sample ran successfully. If the sample runs successfully you should see a match between the test case and the prediction.
