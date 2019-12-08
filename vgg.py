@@ -10,24 +10,27 @@ code example: https://github.com/jacobgil/keras-cam
 import  tensorflow as tf
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import InputLayer,ZeroPadding2D,Convolution2D,MaxPooling2D
-from tensorflow.keras.layers.core import Flatten, Dense, Dropout, Lambda
-from config import VGG16CAMCONFIG
+from tensorflow.keras.layers import Flatten, Dense, Dropout, Lambda
+
+from config import VGGCONFIG as CONFIG
 
 from vgg_data import process_dataset
 
 def global_average_pooling(x):
-    return tf.keras.backend.mean(x, axis = (2, 3))
+    return tf.keras.backend.mean(x, axis = (2,3))
+    #return tf.keras.backend.mean(x, axis = (2, 3))
 
 def global_average_pooling_shape(input_shape):
     return input_shape[0:2]
+    #return input_shape[0:2]
 
 class VGG16CAM():
     def __init__(self):
-        self.filename = VGG16CAMCONFIG.MODEL_PB_FILE
+        self.filename = CONFIG.MODEL_PB_FILE
 
     def create_model(self):
         self.model = Sequential()
-        self.model.add(InputLayer(input_shape=[None,None, 1]))
+        self.model.add(InputLayer(input_shape=[224,224,3]))
         self.model.add(ZeroPadding2D((1,1)))
         self.model.add(Convolution2D(64,(3,3),activation=tf.nn.relu))
         self.model.add(ZeroPadding2D((1, 1)))
@@ -64,9 +67,8 @@ class VGG16CAM():
         self.model.add(Convolution2D(512,(3,3),activation=tf.nn.relu))
 
 
-        self.model.add(Lambda(global_average_pooling,
-              output_shape=global_average_pooling_shape))
-        self.model.add(Dense(2, activation='softmax', init='uniform'))
+        self.model.add(Lambda(global_average_pooling,output_shape=global_average_pooling_shape))
+        self.model.add(Dense(2, activation='softmax', kernel_initializer='uniform'))
         self.model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
 
     def save(self):
@@ -79,11 +81,11 @@ class VGG16CAM():
         with open(self.filename, "wb") as ofile:
             ofile.write(frozen_graph.SerializeToString())
 
-if __name__ == "__main__"
+if __name__ == "__main__":
     import cv2
-
+    import numpy as np
+    from  vgg_data import  process_dataset
     net = VGG16CAM()
-
 
     #***********
     # data preprocess for training and testing
@@ -92,12 +94,14 @@ if __name__ == "__main__"
 
     net.create_model()
 
+    idx = [i for i in range(len(y_train))]
+    #np.random.shuffle(idx)
 
     # Train the model on the data
-    net.model.fit(x_train, y_train, epochs=5, verbose=1)
-
+    print(x_train.shape, y_train.shape)
+    net.model.fit(x_train[idx], y_train[idx], epochs=5, verbose=1)
 
     # Evaluate the model on test data
-    net.model.evaluate(x_test, y_test)
-
+    result = net.model.evaluate(x_test, y_test)
+    print(result)
     net.save()

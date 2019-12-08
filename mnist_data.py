@@ -51,8 +51,6 @@ def get_images(buf, n):
     return im
 
 
-
-
 def get_labels(buf, n):
     '''
     get n labels from label buffer
@@ -125,8 +123,9 @@ if __name__ == "__main__":
     labels = get_labels(label_buffer, n)
     for i in range(n):
         img = images[i]
+        #cv2.resize(img,(500,500))
         #print("image shape before resize: {}\n".format(img.shape))
-        cv2.imwrite("data/{}_L.jpg".format(labels[i]),img)
+        cv2.imwrite("data/{}_{}.jpg".format(i,labels[i]),img)
 
 
 

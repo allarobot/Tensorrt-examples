@@ -11,20 +11,32 @@ from config import MNISTCONFIG
 TRT_LOGGER = trt.Logger(trt.Logger.WARNING)
 
 
-class mnist():
+class Mnist():
     def __init__(self):
         self._config = MNISTCONFIG
+        self.pagelocked_buffer = None
+        self._inputs = None
+        self._outputs = None
+        self._bindings = None
+        self._context = None
+        self._stream = None
+        self._engine = None
 
-    def build_engine(self):
+    def build_engine(self,model_file):
+        print("model file: ",model_file)
         # For more information on TRT basics, refer to the introductory samples.
         with trt.Builder(TRT_LOGGER) as builder, builder.create_network() as network, trt.UffParser() as parser:
-            # builder.max_workspace_size = common.GiB(1)
+            builder.max_workspace_size = common.GiB(1)
             # Parse the Uff Network
             parser.register_input(self._config.INPUT_NAME, self._config.INPUT_SHAPE)
             parser.register_output(self._config.OUTPUT_NAME)
-            parser.parse(self._config.MODEL_FILE, network)
+            parser.parse(model_file, network)
             # Build and return an engine.
             self._engine = builder.build_cuda_engine(network)
+            if self._engine:
+                print("engine created!")
+            else:
+                print("engine failed!")
         self._inputs, self._outputs, self._bindings, self._stream = common.allocate_buffers(self._engine)
         self._context = self._engine.create_execution_context()
         self.pagelocked_buffer = self._inputs[0].host

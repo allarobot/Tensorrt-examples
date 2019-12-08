@@ -5,12 +5,12 @@ This file contains functions for training a TensorFlow model
 """
 
 import tensorflow as tf
-from config import MNISTCONFIG
+from config import MNISTCONFIG as CONFIG
 
 class Mnist():
     def __init__(self):
         # super(Mnist,self).__init__()
-        self.filename = MNISTCONFIG.MODEL_PB_FILE
+        self.filename = CONFIG.MODEL_PB_FILE
 
     def create_model(self):
         self.model = tf.keras.models.Sequential()
@@ -38,6 +38,7 @@ def main():
     x_train, y_train, x_test, y_test = mnist_data.process_dataset()
     o_mnist.create_model()
     # Train the model on the data
+    print(x_train.shape,y_train.shape)
     o_mnist.model.fit(x_train, y_train, epochs = 5, verbose = 1)
     # Evaluate the model on test data
     o_mnist.model.evaluate(x_test, y_test)
